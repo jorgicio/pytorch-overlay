@@ -30,7 +30,8 @@ https://github.com/pytorch/cpuinfo/archive/0e6bde92.tar.gz -> cpuinfo-0e6bde92.t
 https://github.com/pytorch/fbgemm/archive/e526aadd.tar.gz -> fbgemm-e526aadd.tar.gz
 https://github.com/pytorch/QNNPACK/archive/7d2a4e99.tar.gz -> QNNPACK-7d2a4e99.tar.gz
 https://github.com/shibatch/sleef/archive/7f523de6.tar.gz -> sleef-7f523de6.tar.gz
-https://github.com/asmjit/asmjit/archive/ac77dfcd.tar.gz -> asmjit-ac77dfcd.tar.gz"
+https://github.com/asmjit/asmjit/archive/ac77dfcd.tar.gz -> asmjit-ac77dfcd.tar.gz
+https://github.com/google/XNNPACK/archive/7493bfb9.tar.gz -> XNNPACK-7493bfb9.tar.gz"
 
 LICENSE="BSD"
 SLOT="0"
@@ -90,6 +91,7 @@ PATCHES=(
 	"${FILESDIR}"/0002-Don-t-build-libtorch-again-for-PyTorch-1.4.0.patch
 	"${FILESDIR}"/0003-Change-path-to-caffe2-build-dir-made-by-libtorch.patch
 	"${FILESDIR}"/0005-Change-library-directory-according-to-CMake-build.patch
+	"${FILESDIR}"/fix_include_system.patch
 )
 
 src_prepare() {
