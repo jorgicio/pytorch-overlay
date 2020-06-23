@@ -51,7 +51,7 @@ DEPEND="
 	atlas? ( sci-libs/atlas )
 	cuda? ( dev-libs/cudnn
 		dev-cpp/eigen[cuda] )
-	ffmpeg? ( virtual/ffmpeg )
+	ffmpeg? ( media-video/ffmpeg )
 	gflags? ( dev-cpp/gflags )
 	glog? ( dev-cpp/glog )
 	leveldb? ( dev-libs/leveldb )
