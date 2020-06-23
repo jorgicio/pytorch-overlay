@@ -1,0 +1,14 @@
+<?xml version="1.0" ?>
+<repositories version="1.0">
+	<repo quality="experimental" status="unofficial">
+		<name>pytorch</name>
+		<description lang="en">Gentoo Overlay who provides PyTorch and friends.</description>
+		<homepage>https://github.com/jorgicio/pytorch-overlay</homepage>
+		<owner type="person">
+            <name>Jorge Pizarro Callejas</name>
+			<email>jpizarrocallejas@gmail.com</email>
+        </owner>
+		<source type="git">git://github.com/jorgicio/pytorch-overlay.git</source>
+        <feed>https://github.com/jorgicio/pytorch-overlay/commits/master.atom</feed>
+	</repo>
+</repositories>
