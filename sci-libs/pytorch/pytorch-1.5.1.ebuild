@@ -98,6 +98,7 @@ PATCHES=(
 	"${FILESDIR}"/Include-mkl-Caffe2-targets-only-when-enabled.patch
 	"${FILESDIR}"/Use-platform-dependent-LIBDIR-in-TorchConfig.cmake.in.patch
 	"${FILESDIR}"/Fix-path-to-torch_global_deps-library-in-installatio.patch
+	"${FILESDIR}"/${PN}-1.5.0-no-tbb.patch
 )
 
 src_prepare() {
@@ -195,7 +196,7 @@ src_configure() {
 	fi
 
 	# do not rerun cmake and the build process in src_install
-	sed '/RERUN/,+1d' -i "${BUILD_DIR}"/build.ninja || die
+	#sed '/RERUN/,+1d' -i "${BUILD_DIR}"/build.ninja || die
 }
 
 src_compile() {
