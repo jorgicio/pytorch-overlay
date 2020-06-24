@@ -18,6 +18,7 @@
 		<flag name="lmdb">Enable support for LMDB</flag>
 		<flag name="mkl">Use Intel MKL as BLAS implementation</flag>
 		<flag name="mkldnn">Build with Intel MKL-DNN support</flag>
+        <flag name="namedtensor">Enablle support for named tensors</flag>
 		<flag name="nnpack">Enable NNPACK support</flag>
 		<flag name="numa">Enable support for NUMA</flag>
 		<flag name="numpy">Enable NumPy support</flag>

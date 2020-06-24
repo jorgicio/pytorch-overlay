@@ -64,7 +64,7 @@ src_configure() {
 
 	if use python; then
 		FORCE_CUDA=$(usex cuda 1 0) \
-		CUDA_HOME=$(usex ${CUDA_HOME} "") \
+		CUDA_HOME=$(usex cuda ${CUDA_HOME} "") \
 		ENABLE_FFMPEG=$(usex ffmpeg 1 0) \
 		distutils-r1_src_configure
 	fi
@@ -75,7 +75,7 @@ src_compile() {
 
 	if use python; then
 		FORCE_CUDA=$(usex cuda 1 0) \
-		CUDA_HOME=$(usex ${CUDA_HOME} "") \
+		CUDA_HOME=$(usex cuda ${CUDA_HOME} "") \
 		ENABLE_FFMPEG=$(usex ffmpeg 1 0) \
 		MAKEOPTS="-j1" \
 		distutils-r1_src_compile
@@ -88,7 +88,7 @@ src_install() {
 
 	if use python; then
 		FORCE_CUDA=$(usex cuda 1 0) \
-		CUDA_HOME=$(usex ${CUDA_HOME} "") \
+		CUDA_HOME=$(usex cuda ${CUDA_HOME} "") \
 		ENABLE_FFMPEG=$(usex ffmpeg 1 0) \
 		distutils-r1_src_install
 	fi

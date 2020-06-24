@@ -39,7 +39,7 @@ LICENSE="BSD"
 SLOT="0"
 KEYWORDS="~amd64"
 
-IUSE="asan atlas cuda eigen +fbgemm ffmpeg gflags glog +gloo leveldb lmdb mkl mkldnn mpi +nnpack numa +numpy +observers +openblas opencl opencv +openmp +python +qnnpack redis static tbb test tools +xnnpack zeromq"
+IUSE="asan atlas cuda eigen +fbgemm ffmpeg gflags glog +gloo leveldb lmdb mkl mkldnn mpi namedtensor +nnpack numa +numpy +observers +openblas opencl opencv +openmp +python +qnnpack redis static tbb test tools +xnnpack zeromq"
 
 REQUIRED_USE="
 	python? ( ${PYTHON_REQUIRED_USE} )
@@ -90,6 +90,7 @@ PATCHES=(
 	"${FILESDIR}"/Use-FHS-compliant-paths-from-GNUInstallDirs-module-1.5.0.patch
 	"${FILESDIR}"/0002-Don-t-build-libtorch-again-for-PyTorch-1.4.0.patch
 	"${FILESDIR}"/0003-Change-path-to-caffe2-build-dir-made-by-libtorch.patch
+	"${FILESDIR}"/0004-Don-t-fill-rpath-of-Caffe2-library-for-system-wide-i.patch
 	"${FILESDIR}"/0005-Change-library-directory-according-to-CMake-build.patch
 	"${FILESDIR}"/0006-Change-torch_path-part-for-cpp-extensions.patch
 	"${FILESDIR}"/0007-Add-necessary-include-directory-for-ATen-CPU-tests.patch
@@ -151,6 +152,7 @@ src_configure() {
 		-DTORCH_INSTALL_LIB_DIR=$(get_libdir)
 		-DBUILD_BINARY=$(usex tools ON OFF)
 		-DBUILD_CUSTOM_PROTOBUF=OFF
+		-DBUILD_DOCS=OFF
 		-DBUILD_PYTHON=$(usex python ON OFF)
 		-DBUILD_SHARED_LIBS=$(usex static OFF ON)
 		-DBUILD_TEST=$(usex test ON OFF)
@@ -187,16 +189,14 @@ src_configure() {
 		-DUSE_GLOO=$(usex gloo ON OFF)
 		-DUSE_SYSTEM_EIGEN_INSTALL=ON
 		-DBLAS=${blas}
+		-DBUILDING_SYSTEM_WIDE=ON
 	)
 
 	cmake_src_configure
 
 	if use python; then
-		CMAKE_BUILD_DIR=${BUILD_DIR} distutils-r1_src_configure
+		distutils-r1_src_configure
 	fi
-
-	# do not rerun cmake and the build process in src_install
-	#sed '/RERUN/,+1d' -i "${BUILD_DIR}"/build.ninja || die
 }
 
 src_compile() {
@@ -223,16 +223,8 @@ src_install() {
 	rm -rfv "${ED}/var"
 	rm -rfv "${ED}/usr/lib"
 
-	#rm -fv "${ED}/usr/include/*.{h,hpp}"
-	#rm -rfv "${ED}/usr/include/asmjit"
-	#rm -rfv "${ED}/usr/include/c10d"
-	#rm -rfv "${ED}/usr/include/fbgemm"
-	rm -rfv "${ED}/usr/include/fp16*"
-	#rm -rfv "${ED}/usr/include/gloo"
-	#rm -rfv "${ED}/usr/include/include"
-	#rm -rfv "${ED}/usr/include/var"
-
-	#cp -rv "${WORKDIR}/${P}/third_party/pybind11/include/pybind11" "${ED}/usr/include/"
+	rm -rfv "${ED}/usr/include/fp16"
+	rm -rfv "${ED}/usr/include/fp16.h"
 
 	rm -fv "${ED}/usr/lib64/libtbb.so"
 	rm -rfv "${ED}/usr/lib64/cmake"
