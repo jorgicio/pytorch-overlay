@@ -5,7 +5,9 @@ EAPI=7
 
 PYTHON_COMPAT=( python3_{6,7,8} )
 
-inherit distutils-r1 cmake cuda
+DISTUTILS_OPTIONAL=1
+
+inherit distutils-r1 cmake cuda python-r1 python-utils-r1
 
 DESCRIPTION="Tensors and Dynamic neural networks in Python with strong GPU acceleration"
 HOMEPAGE="https://pytorch.org/"
@@ -37,7 +39,7 @@ LICENSE="BSD"
 SLOT="0"
 KEYWORDS="~amd64"
 
-IUSE="asan atlas cuda eigen +fbgemm ffmpeg gflags glog +gloo leveldb lmdb mkl mkldnn mpi namedtensor +nnpack numa +numpy +observers +openblas opencl opencv +openmp +python +qnnpack redis static tbb test tools zeromq"
+IUSE="asan atlas cuda eigen +fbgemm ffmpeg gflags glog +gloo leveldb lmdb mkl mkldnn mpi +nnpack numa +numpy +observers +openblas opencl opencv +openmp +python +qnnpack redis static tbb test tools +xnnpack zeromq"
 
 REQUIRED_USE="
 	python? ( ${PYTHON_REQUIRED_USE} )
@@ -85,13 +87,17 @@ DEPEND="
 "
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-1.5.0-setup.patch
-	"${FILESDIR}"/${PN}-1.4.0-sleef.patch
-	"${FILESDIR}"/${PN}-1.5.0-skip-tests.patch
+	"${FILESDIR}"/Use-FHS-compliant-paths-from-GNUInstallDirs-module-1.5.0.patch
 	"${FILESDIR}"/0002-Don-t-build-libtorch-again-for-PyTorch-1.4.0.patch
 	"${FILESDIR}"/0003-Change-path-to-caffe2-build-dir-made-by-libtorch.patch
 	"${FILESDIR}"/0005-Change-library-directory-according-to-CMake-build.patch
-	"${FILESDIR}"/fix_include_system.patch
+	"${FILESDIR}"/0006-Change-torch_path-part-for-cpp-extensions.patch
+	"${FILESDIR}"/0007-Add-necessary-include-directory-for-ATen-CPU-tests.patch
+	"${FILESDIR}"/Include-neon2sse-third-party-header-library.patch
+	"${FILESDIR}"/Use-system-wide-pybind11-properly.patch
+	"${FILESDIR}"/Include-mkl-Caffe2-targets-only-when-enabled.patch
+	"${FILESDIR}"/Use-platform-dependent-LIBDIR-in-TorchConfig.cmake.in.patch
+	"${FILESDIR}"/Fix-path-to-torch_global_deps-library-in-installatio.patch
 )
 
 src_prepare() {
@@ -174,11 +180,11 @@ src_configure() {
 		-DUSE_QNNPACK=$(usex qnnpack ON OFF)
 		-DUSE_REDIS=$(usex redis ON OFF)
 		-DUSE_ROCKSDB=OFF
+		-DUSE_XNNPACK=$(usex xnnpack ON OFF)
 		-DUSE_ZMQ=$(usex zeromq ON OFF)
 		-DUSE_MPI=$(usex mpi ON OFF)
 		-DUSE_GLOO=$(usex gloo ON OFF)
 		-DUSE_SYSTEM_EIGEN_INSTALL=ON
-		-DBUILD_NAMEDTENSOR=$(usex namedtensor ON OFF)
 		-DBLAS=${blas}
 	)
 
@@ -203,41 +209,64 @@ src_compile() {
 src_install() {
 	cmake_src_install
 
-	local LIB=$(get_libdir)
-	if [[ ${LIB} != lib ]]; then
-		mv -fv "${ED}"/usr/lib/*.so "${ED}"/usr/${LIB}/ || die
-	fi
+	local multilib_failing_files=(
+		libgloo.a
+		libsleef.a
+	)
+
+	for file in ${multilib_failing_files[@]}; do
+		mv -fv "${ED}/usr/lib/$file" "${ED}/usr/$(get_libdir)"
+	done
 
 	rm -rfv "${ED}/torch"
 	rm -rfv "${ED}/var"
 	rm -rfv "${ED}/usr/lib"
 
-	rm -fv "${ED}/usr/include/*.{h,hpp}"
-	rm -rfv "${ED}/usr/include/asmjit"
-	rm -rfv "${ED}/usr/include/c10d"
-	rm -rfv "${ED}/usr/include/fbgemm"
-	rm -rfv "${ED}/usr/include/fp16"
-	rm -rfv "${ED}/usr/include/gloo"
-	rm -rfv "${ED}/usr/include/include"
-	rm -rfv "${ED}/usr/include/var"
+	#rm -fv "${ED}/usr/include/*.{h,hpp}"
+	#rm -rfv "${ED}/usr/include/asmjit"
+	#rm -rfv "${ED}/usr/include/c10d"
+	#rm -rfv "${ED}/usr/include/fbgemm"
+	rm -rfv "${ED}/usr/include/fp16*"
+	#rm -rfv "${ED}/usr/include/gloo"
+	#rm -rfv "${ED}/usr/include/include"
+	#rm -rfv "${ED}/usr/include/var"
 
-	cp -rv "${WORKDIR}/${P}/third_party/pybind11/include/pybind11" "${ED}/usr/include/"
+	#cp -rv "${WORKDIR}/${P}/third_party/pybind11/include/pybind11" "${ED}/usr/include/"
 
 	rm -fv "${ED}/usr/lib64/libtbb.so"
 	rm -rfv "${ED}/usr/lib64/cmake"
 
 	if use python; then
 		install_shm_manager() {
-			TORCH_BIN_DIR="${ED}/usr/lib64/${EPYTHON}/site-packages/torch/bin"
+			python_get_sitedir
+			TORCH_BIN_DIR="${ED}/${PYTHON_SITEDIR}/torch/bin"
 
 			mkdir -pv ${TORCH_BIN_DIR}
-			cp -v "${ED}/usr/bin/torch_shm_manager" "${TORCH_BIN_DIR}"
+			cp -v "${ED}/usr/bin/torch_shm_manager" "${TORCH_BIN_DIR}" || die
 		}
 
 		python_foreach_impl install_shm_manager
+		rm "${ED}"/usr/bin/torch_shm_manager || die
+
+		remove_tests() {
+			find "${ED}" -name "*test*" -exec rm -rfv {} \;
+		}
 
 		scanelf -r --fix "${BUILD_DIR}/caffe2/python"
 		CMAKE_BUILD_DIR=${BUILD_DIR} distutils-r1_src_install
+
+		fix_caffe_convert_utils() {
+			python_setup
+			python_get_scriptdir
+			ln -rnsvf "${ED}/${PYTHON_SCRIPTDIR}/convert-caffe2-to-onnx" "${ED}/usr/bin/" || die
+			ln -rnsvf "${ED}/${PYTHON_SCRIPTDIR}/convert-onnx-to-caffe2" "${ED}/usr/bin/" || die
+		}
+
+		fix_caffe_convert_utils
+
+		if use test; then
+			python_foreach_impl remove_tests
+		fi
 
 		python_foreach_impl python_optimize
 	fi

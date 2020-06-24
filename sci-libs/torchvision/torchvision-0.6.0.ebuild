@@ -37,8 +37,6 @@ RDEPEND="${COMMON_DEPEND}"
 
 S="${WORKDIR}/vision-${PV}"
 
-PATCHES=("${FILESDIR}/${PN}-include-dir.patch")
-
 pkg_setup() {
 	if use cuda; then
 		export FORCE_CUDA=1

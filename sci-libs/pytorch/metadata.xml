@@ -18,7 +18,6 @@
 		<flag name="lmdb">Enable support for LMDB</flag>
 		<flag name="mkl">Use Intel MKL as BLAS implementation</flag>
 		<flag name="mkldnn">Build with Intel MKL-DNN support</flag>
-		<flag name="namedtensor">Enable support for named tensors</flag>
 		<flag name="nnpack">Enable NNPACK support</flag>
 		<flag name="numa">Enable support for NUMA</flag>
 		<flag name="numpy">Enable NumPy support</flag>
@@ -30,6 +29,7 @@
 		<flag name="redis">Enable support for Redis</flag>
 		<flag name="tbb">Build with Intel TBB enabled</flag>
 		<flag name="tools">Build binary tools</flag>
+        <flag name="xnnpack">Enable XNNPACK support</flag>
 		<flag name="zeromq">Enable support for ZeroMQ</flag>
 	</use>
 </pkgmetadata>
