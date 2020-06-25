@@ -7,22 +7,33 @@ PYTHON_COMPAT=( python3_{6,7,8} )
 
 DISTUTILS_OPTIONAL=1
 
-inherit distutils-r1 cmake-utils cuda git-r3 python-r1 python-utils-r1
+inherit distutils-r1 cmake cuda python-r1 python-utils-r1
 
 DESCRIPTION="Tensors and Dynamic neural networks in Python with strong GPU acceleration"
 HOMEPAGE="https://pytorch.org/"
-SRC_URI="https://github.com/pytorch/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
-
-EGIT_REPO_URI="https://github.com/pytorch/${PN}"
-EGIT_COMMIT="v${PV}"
-EGIT_SUBMODULES=(
-	'*'
-	'-third_party/protobuf'
-	'-third_party/ios-cmake'
-	'-third_party/gflags'
-	'-third_party/glog'
-	'-third_party/pybind11'
-)
+SRC_URI="https://github.com/pytorch/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz
+https://github.com/facebookincubator/gloo/archive/113bde13.tar.gz -> gloo-113bde13.tar.gz
+https://github.com/google/benchmark/archive/505be96a.tar.gz -> benchmark-505be96a.tar.gz
+https://github.com/google/gemmlowp/archive/3fb5c176.tar.gz -> gemmlowp-3fb5c176.tar.gz
+https://github.com/google/googletest/archive/2fe3bd99.tar.gz -> googletest-2fe3bd99.tar.gz
+https://github.com/houseroad/foxi/archive/8015abb7.tar.gz -> foxi-8015abb7.tar.gz
+https://github.com/intel/ideep/archive/3fc96899.tar.gz -> ideep-3fc96899.tar.gz
+https://github.com/Maratyszcza/FP16/archive/febbb1c1.tar.gz -> FP16-febbb1c1.tar.gz
+https://github.com/Maratyszcza/FXdiv/archive/b742d114.tar.gz -> FXdiv-b742d114.tar.gz
+https://github.com/Maratyszcza/NNPACK/archive/24b55303.tar.gz -> NNPACK-24b55303.tar.gz
+https://github.com/Maratyszcza/PeachPy/archive/07d8fde8.tar.gz -> PeachPy-07d8fde8.tar.gz
+https://github.com/Maratyszcza/psimd/archive/10b4ffc6.tar.gz -> psimd-10b4ffc6.tar.gz
+https://github.com/Maratyszcza/pthreadpool/archive/d4657476.tar.gz -> pthreadpool-d4657476.tar.gz
+cuda? ( https://github.com/NVIDIA/nccl/archive/7c72dee6.tar.gz -> nccl-7c72dee6.tar.gz )
+https://github.com/NVlabs/cub/archive/285aeeba.tar.gz -> cub-285aeeba.tar.gz
+https://github.com/onnx/onnx/archive/9fdae4c6.tar.gz -> onnx-9fdae4c6.tar.gz
+https://github.com/onnx/onnx-tensorrt/archive/c1532114.tar.gz -> onnx-tensorrt-c1532114.tar.gz
+https://github.com/pytorch/cpuinfo/archive/0e6bde92.tar.gz -> cpuinfo-0e6bde92.tar.gz
+https://github.com/pytorch/fbgemm/archive/e526aadd.tar.gz -> fbgemm-e526aadd.tar.gz
+https://github.com/pytorch/QNNPACK/archive/7d2a4e99.tar.gz -> QNNPACK-7d2a4e99.tar.gz
+https://github.com/shibatch/sleef/archive/7f523de6.tar.gz -> sleef-7f523de6.tar.gz
+https://github.com/asmjit/asmjit/archive/ac77dfcd.tar.gz -> asmjit-ac77dfcd.tar.gz
+https://github.com/google/XNNPACK/archive/7493bfb9.tar.gz -> XNNPACK-7493bfb9.tar.gz"
 
 LICENSE="BSD"
 SLOT="0"
@@ -92,7 +103,37 @@ PATCHES=(
 )
 
 src_prepare() {
-	cmake-utils_src_prepare
+	cmake_src_prepare
+
+	mv -v third_party/miniz-* ../ || die
+	rm -r third_party || die
+	ln -s .. third_party || die
+	cd .. || die
+	for d in *; do
+		case ${d} in
+			${PN}* | miniz-*) continue ;;
+			PeachPy-*) mv -v ${d} python-peachpy || die ;;
+			*) mv -v ${d} ${d%-*} || die ;;
+		esac
+	done
+
+	mv -v FBGEMM fbgemm || die
+	cd fbgemm || die
+	rm -r third_party || die
+	ln -s .. third_party || die
+
+	cd ../onnx || die
+	rm -r third_party || die
+	ln -s .. third_party || die
+
+	if use cuda; then
+		cd ../nccl || die
+		eapply "${FILESDIR}"/${PN}-1.4.0-nccl-nvccflags.patch
+		ln -s . nccl || die
+
+		cuda_src_prepare
+		export CUDAHOSTCXX=$(cuda_gccdir)/g++
+	fi
 }
 
 src_configure() {
@@ -151,7 +192,7 @@ src_configure() {
 		-DBUILDING_SYSTEM_WIDE=ON
 	)
 
-	cmake-utils_src_configure
+	cmake_src_configure
 
 	if use python; then
 		distutils-r1_src_configure
@@ -159,7 +200,7 @@ src_configure() {
 }
 
 src_compile() {
-	cmake-utils_src_compile
+	cmake_src_compile
 
 	if use python; then
 		CMAKE_BUILD_DIR=${BUILD_DIR} distutils-r1_src_compile
@@ -167,7 +208,7 @@ src_compile() {
 }
 
 src_install() {
-	cmake-utils_src_install
+	cmake_src_install
 
 	local multilib_failing_files=(
 		libgloo.a
