@@ -72,7 +72,8 @@ DEPEND="
 	zeromq? ( net-libs/zeromq )
 	eigen? ( dev-cpp/eigen )
 "
-RDEPEND="${DEPEND}"
+RDEPEND="${DEPEND}
+	sci-libs/onnx[python?]"
 BDEPEND=""
 
 DEPEND="
