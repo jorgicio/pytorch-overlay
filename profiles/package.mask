@@ -1,3 +1,2 @@
 # Still testing.
-=sci-libs/pytorch-1.6.0
 =sci-libs/torchvision-0.7.0

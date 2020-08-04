@@ -35,13 +35,13 @@ https://github.com/shibatch/sleef/archive/7f523de6.tar.gz -> sleef-7f523de6.tar.
 https://github.com/asmjit/asmjit/archive/9057aa30.tar.gz -> asmjit-9057aa30.tar.gz
 https://github.com/google/XNNPACK/archive/1b354636.tar.gz -> XNNPACK-1b354636.tar.gz
 https://github.com/fmtlib/fmt/archive/9bdd1596.tar.gz -> fmt-9bdd1596.tar.gz
-https://github.com/pytorch/tensorpipe/archive/3b8089c9.tar.gz -> tensorpipe-3b8089c9.tar.gz"
+tensorpipe? ( https://github.com/pytorch/tensorpipe/archive/3b8089c9.tar.gz -> tensorpipe-3b8089c9.tar.gz )"
 
 LICENSE="BSD"
 SLOT="0"
 KEYWORDS="~amd64"
 
-IUSE="asan atlas cuda eigen +fbgemm ffmpeg gflags glog +gloo leveldb lmdb mkl mkldnn mpi namedtensor +nnpack numa +numpy +observers +openblas opencl opencv +openmp +python +qnnpack redis static tbb test tools +xnnpack zeromq"
+IUSE="asan atlas cuda eigen +fbgemm ffmpeg gflags glog +gloo leveldb lmdb mkl mkldnn mpi namedtensor +nnpack numa +numpy +observers +openblas opencl opencv +openmp +python +qnnpack redis static tbb test +tensorpipe tools +xnnpack zeromq"
 
 REQUIRED_USE="
 	python? ( ${PYTHON_REQUIRED_USE} )
@@ -87,7 +87,7 @@ DEPEND="
 	dev-python/pybind11[${PYTHON_USEDEP}]
 	sys-fabric/libibverbs
 	sys-process/numactl
-"
+	dev-libs/libuv:="
 
 PATCHES=(
 	"${FILESDIR}"/Use-FHS-compliant-paths-from-GNUInstallDirs-module-1.6.0.patch
@@ -103,6 +103,7 @@ PATCHES=(
 	"${FILESDIR}"/Use-platform-dependent-LIBDIR-in-TorchConfig.cmake.in-1.6.0.patch
 	"${FILESDIR}"/Fix-path-to-torch_global_deps-library-in-installatio.patch
 	"${FILESDIR}"/${PN}-1.5.0-no-tbb.patch
+	"${FILESDIR}"/Use-system-libuv.patch
 )
 
 src_prepare() {
@@ -128,6 +129,9 @@ src_prepare() {
 	cd ../onnx || die
 	rm -r third_party || die
 	ln -s .. third_party || die
+
+	#eapply -p2 "${FILESDIR}"/Use-system-libuv-2.patch
+	sed -i -e "s#LIBUV ON#LIBUV OFF#" third_party/tensorpipe/cmake/pytorch.cmake
 
 	if use cuda; then
 		cd ../nccl || die
@@ -193,6 +197,7 @@ src_configure() {
 		-DUSE_SYSTEM_EIGEN_INSTALL=ON
 		-DBLAS=${blas}
 		-DBUILDING_SYSTEM_WIDE=ON
+		-DUSE_TENSORPIPE=$(usex tensorpipe ON OFF)
 	)
 
 	cmake_src_configure
