@@ -1,0 +1,69 @@
+diff -Naur pytorch-1.6.0.orig/cmake/Caffe2Config.cmake.in pytorch-1.6.0/cmake/Caffe2Config.cmake.in
+--- pytorch-1.6.0.orig/cmake/Caffe2Config.cmake.in	2020-08-04 00:32:32.892423958 -0400
++++ pytorch-1.6.0/cmake/Caffe2Config.cmake.in	2020-08-04 00:33:34.148105380 -0400
+@@ -132,4 +132,4 @@
+ # Note: the current list dir is _INSTALL_PREFIX/share/cmake/Gloo.
+ get_filename_component(
+     _INSTALL_PREFIX "${CMAKE_CURRENT_LIST_DIR}/../../../" ABSOLUTE)
+-set(CAFFE2_INCLUDE_DIRS "${_INSTALL_PREFIX}/include")
++set(CAFFE2_INCLUDE_DIRS "${_INSTALL_PREFIX}/include" @pybind11_INCLUDE_DIRS@)
+diff -Naur pytorch-1.6.0.orig/cmake/Dependencies.cmake pytorch-1.6.0/cmake/Dependencies.cmake
+--- pytorch-1.6.0.orig/cmake/Dependencies.cmake	2020-08-04 00:32:32.892423958 -0400
++++ pytorch-1.6.0/cmake/Dependencies.cmake	2020-08-04 00:35:12.382815012 -0400
+@@ -941,15 +941,11 @@
+ endif()
+ 
+ # ---[ pybind11
+-if(NOT ${pybind11_PREFER_third_party})
+-  find_package(pybind11 CONFIG)
+-  if(NOT pybind11_FOUND)
+-    find_package(pybind11)
+-  endif()
+-endif()
++set(pybind11_FOUND TRUE)
+ 
+ if(pybind11_FOUND)
+     message(STATUS "System pybind11 found")
++    set(pybind11_INCLUDE_DIRS ${PYTHON_INCLUDE_DIR})
+ else()
+     message(STATUS "Using third_party/pybind11.")
+     set(pybind11_INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/../third_party/pybind11/include)
+diff -Naur pytorch-1.6.0.orig/cmake/TorchConfig.cmake.in pytorch-1.6.0/cmake/TorchConfig.cmake.in
+--- pytorch-1.6.0.orig/cmake/TorchConfig.cmake.in	2020-08-04 00:32:32.893424067 -0400
++++ pytorch-1.6.0/cmake/TorchConfig.cmake.in	2020-08-04 00:36:07.179786256 -0400
+@@ -28,11 +28,13 @@
+ if(EXISTS "${TORCH_INSTALL_PREFIX}/include")
+   set(TORCH_INCLUDE_DIRS
+     ${TORCH_INSTALL_PREFIX}/include
+-    ${TORCH_INSTALL_PREFIX}/include/torch/csrc/api/include)
++    ${TORCH_INSTALL_PREFIX}/include/torch/csrc/api/include
++    @pybind11_INCLUDE_DIRS@)
+ else()
+   set(TORCH_INCLUDE_DIRS
+     ${TORCH_INSTALL_PREFIX}/include
+-    ${TORCH_INSTALL_PREFIX}/include/torch/csrc/api/include)
++    ${TORCH_INSTALL_PREFIX}/include/torch/csrc/api/include\
++    @pybind11_INCLUDE_DIRS@)
+ endif()
+ 
+ # Library dependencies.
+diff -Naur pytorch-1.6.0.orig/setup.py pytorch-1.6.0/setup.py
+--- pytorch-1.6.0.orig/setup.py	2020-08-04 00:32:32.876422212 -0400
++++ pytorch-1.6.0/setup.py	2020-08-04 00:36:40.311395673 -0400
+@@ -293,7 +293,6 @@
+             sys.exit(1)
+ 
+     check_file(os.path.join(third_party_path, "gloo", "CMakeLists.txt"))
+-    check_file(os.path.join(third_party_path, "pybind11", "CMakeLists.txt"))
+     check_file(os.path.join(third_party_path, 'cpuinfo', 'CMakeLists.txt'))
+     check_file(os.path.join(third_party_path, 'tbb', 'Makefile'))
+     check_file(os.path.join(third_party_path, 'onnx', 'CMakeLists.txt'))
+@@ -848,8 +847,6 @@
+                 'include/torch/csrc/jit/testing/*.h',
+                 'include/torch/csrc/onnx/*.h',
+                 'include/torch/csrc/utils/*.h',
+-                'include/pybind11/*.h',
+-                'include/pybind11/detail/*.h',
+                 'include/TH/*.h*',
+                 'include/TH/generic/*.h*',
+                 'include/THC/*.cuh',
