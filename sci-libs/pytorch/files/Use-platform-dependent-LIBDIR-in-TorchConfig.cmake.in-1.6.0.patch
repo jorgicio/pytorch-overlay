@@ -1,7 +1,17 @@
-diff -Naur pytorch-1.6.0.orig/cmake/TorchConfig.cmake.in pytorch-1.6.0/cmake/TorchConfig.cmake.in
---- pytorch-1.6.0.orig/cmake/TorchConfig.cmake.in	2020-08-04 00:39:32.870289203 -0400
-+++ pytorch-1.6.0/cmake/TorchConfig.cmake.in	2020-08-04 00:42:54.311778569 -0400
-@@ -44,45 +44,45 @@
+From 20eb0b279e1b9501b593aeeb8ff321313f21939c Mon Sep 17 00:00:00 2001
+From: Alexey Chernov <4ernov@gmail.com>
+Date: Fri, 22 May 2020 00:59:01 +0300
+Subject: [PATCH 2/2] Use platform-dependent `LIBDIR` in `TorchConfig.cmake.in`
+
+---
+ cmake/TorchConfig.cmake.in | 22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
+
+diff --git a/cmake/TorchConfig.cmake.in b/cmake/TorchConfig.cmake.in
+index ee302e0e16..47807f982e 100644
+--- a/cmake/TorchConfig.cmake.in
++++ b/cmake/TorchConfig.cmake.in
+@@ -46,45 +46,45 @@ else()
    set(TORCH_LIBRARIES torch)
  endif()
  
@@ -56,16 +66,7 @@ diff -Naur pytorch-1.6.0.orig/cmake/TorchConfig.cmake.in pytorch-1.6.0/cmake/Tor
    list(APPEND TORCH_LIBRARIES ${CLOG_LIBRARY})
  endif()
  
-@@ -96,7 +96,7 @@
-       ${NVTOOLEXT_HOME}/lib/x64/nvToolsExt64_1.lib
-       ${CUDA_LIBRARIES})
-     list(APPEND TORCH_INCLUDE_DIRS ${NVTOOLEXT_HOME}/include)
--    find_library(CAFFE2_NVRTC_LIBRARY caffe2_nvrtc PATHS "${TORCH_INSTALL_PREFIX}/lib")
-+    find_library(CAFFE2_NVRTC_LIBRARY caffe2_nvrtc PATHS "${TORCH_INSTALL_PREFIX}/@CMAKE_INSTALL_LIBDIR@")
-     list(APPEND TORCH_CUDA_LIBRARIES ${CAFFE2_NVRTC_LIBRARY})
-   elseif(APPLE)
-     set(TORCH_CUDA_LIBRARIES
-@@ -105,14 +105,14 @@
+@@ -102,14 +102,14 @@ if (@USE_CUDA@)
        ${CUDA_TOOLKIT_ROOT_DIR}/lib/libnvToolsExt.dylib
        ${CUDA_LIBRARIES})
    else()
@@ -82,7 +83,7 @@ diff -Naur pytorch-1.6.0.orig/cmake/TorchConfig.cmake.in pytorch-1.6.0/cmake/Tor
    list(APPEND TORCH_CUDA_LIBRARIES ${C10_CUDA_LIBRARY})
    list(APPEND TORCH_LIBRARIES ${TORCH_CUDA_LIBRARIES})
  endif()
-@@ -122,7 +122,7 @@
+@@ -119,7 +119,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
    set(TORCH_CXX_FLAGS "-D_GLIBCXX_USE_CXX11_ABI=@GLIBCXX_USE_CXX11_ABI@")
  endif()
  
@@ -91,3 +92,6 @@ diff -Naur pytorch-1.6.0.orig/cmake/TorchConfig.cmake.in pytorch-1.6.0/cmake/Tor
  set_target_properties(torch PROPERTIES
      IMPORTED_LOCATION "${TORCH_LIBRARY}"
      INTERFACE_INCLUDE_DIRECTORIES "${TORCH_INCLUDE_DIRS}"
+-- 
+2.26.2
+

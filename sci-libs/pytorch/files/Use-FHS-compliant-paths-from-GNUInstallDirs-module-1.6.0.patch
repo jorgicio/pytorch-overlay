@@ -1,7 +1,54 @@
-diff -Naur pytorch-1.6.0.orig/aten/CMakeLists.txt pytorch-1.6.0/aten/CMakeLists.txt
---- pytorch-1.6.0.orig/aten/CMakeLists.txt	2020-07-24 18:18:09.000000000 -0400
-+++ pytorch-1.6.0/aten/CMakeLists.txt	2020-08-04 00:02:30.597970070 -0400
-@@ -36,9 +36,9 @@
+From f944491b791dbf29c4ae060c23430e6f528c2739 Mon Sep 17 00:00:00 2001
+From: Alexey Chernov <4ernov@gmail.com>
+Date: Mon, 17 Aug 2020 19:28:59 +0300
+Subject: [PATCH] Use FHS-compliant paths from `GNUInstallDirs` module
+
+Use paths provided by `GNUInstallDirs` CMake module, so
+that paths of the installed pieces were FHS-compliant and
+root filesystem friendly.
+
+Signed-off by: Alexey Chernov <4ernov@gmail.com>
+---
+ CMakeLists.txt                        |  3 +++
+ aten/CMakeLists.txt                   |  6 +++---
+ aten/src/ATen/CMakeLists.txt          |  8 ++++----
+ aten/src/ATen/cpu/tbb/CMakeLists.txt  | 10 ++++++----
+ c10/CMakeLists.txt                    |  6 +++---
+ c10/cuda/CMakeLists.txt               |  6 +++---
+ c10/hip/CMakeLists.txt                |  6 +++---
+ caffe2/CMakeLists.txt                 |  8 ++++----
+ caffe2/proto/CMakeLists.txt           |  2 +-
+ modules/detectron/CMakeLists.txt      |  6 +++---
+ modules/module_test/CMakeLists.txt    |  2 +-
+ modules/observers/CMakeLists.txt      |  3 +--
+ modules/rocksdb/CMakeLists.txt        |  2 +-
+ test/cpp/api/CMakeLists.txt           |  2 +-
+ test/cpp/dist_autograd/CMakeLists.txt |  2 +-
+ test/cpp/jit/CMakeLists.txt           |  2 +-
+ torch/CMakeLists.txt                  |  2 +-
+ torch/lib/c10d/CMakeLists.txt         |  4 ++--
+ torch/lib/libshm/CMakeLists.txt       |  8 ++++----
+ 19 files changed, 46 insertions(+), 42 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 50f7657..74799c7 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -112,6 +112,9 @@ if(NOT LINUX)
+   endif()
+ endif()
+ 
++# Make installation paths FHS-compliant as much, as possible
++include(GNUInstallDirs)
++
+ # ---[ Options.
+ # Note to developers: if you add an option below, make sure you also add it to
+ # cmake/Summary.cmake so that the summary prints out the option values.
+diff --git a/aten/CMakeLists.txt b/aten/CMakeLists.txt
+index 5f562a7..dc4edeb 100644
+--- a/aten/CMakeLists.txt
++++ b/aten/CMakeLists.txt
+@@ -36,9 +36,9 @@ set(ATen_CUDA_DEPENDENCY_LIBS)
  set(ATen_HIP_DEPENDENCY_LIBS)
  set(ATen_PUBLIC_CUDA_DEPENDENCY_LIBS)
  set(ATen_PUBLIC_HIP_DEPENDENCY_LIBS)
@@ -14,10 +61,11 @@ diff -Naur pytorch-1.6.0.orig/aten/CMakeLists.txt pytorch-1.6.0/aten/CMakeLists.
  
  if(USE_CUDA)
    list(APPEND ATen_CUDA_INCLUDE ${CUDA_INCLUDE_DIRS})
-diff -Naur pytorch-1.6.0.orig/aten/src/ATen/CMakeLists.txt pytorch-1.6.0/aten/src/ATen/CMakeLists.txt
---- pytorch-1.6.0.orig/aten/src/ATen/CMakeLists.txt	2020-07-24 18:18:09.000000000 -0400
-+++ pytorch-1.6.0/aten/src/ATen/CMakeLists.txt	2020-08-04 00:03:44.141645208 -0400
-@@ -10,10 +10,10 @@
+diff --git a/aten/src/ATen/CMakeLists.txt b/aten/src/ATen/CMakeLists.txt
+index 9402d28..ccfc89d 100644
+--- a/aten/src/ATen/CMakeLists.txt
++++ b/aten/src/ATen/CMakeLists.txt
+@@ -10,10 +10,10 @@ endif(NOT MSVC)
  
  # Can be compiled standalone
  if(NOT AT_INSTALL_BIN_DIR OR NOT AT_INSTALL_LIB_DIR OR NOT AT_INSTALL_INCLUDE_DIR OR NOT AT_INSTALL_SHARE_DIR)
@@ -32,10 +80,11 @@ diff -Naur pytorch-1.6.0.orig/aten/src/ATen/CMakeLists.txt pytorch-1.6.0/aten/sr
  endif()
  
  # this flag is used in Config but set externally, we must normalize it
-diff -Naur pytorch-1.6.0.orig/aten/src/ATen/cpu/tbb/CMakeLists.txt pytorch-1.6.0/aten/src/ATen/cpu/tbb/CMakeLists.txt
---- pytorch-1.6.0.orig/aten/src/ATen/cpu/tbb/CMakeLists.txt	2020-07-24 18:18:09.000000000 -0400
-+++ pytorch-1.6.0/aten/src/ATen/cpu/tbb/CMakeLists.txt	2020-08-04 00:05:37.130131053 -0400
-@@ -7,6 +7,8 @@
+diff --git a/aten/src/ATen/cpu/tbb/CMakeLists.txt b/aten/src/ATen/cpu/tbb/CMakeLists.txt
+index 5a2c93b..9170711 100644
+--- a/aten/src/ATen/cpu/tbb/CMakeLists.txt
++++ b/aten/src/ATen/cpu/tbb/CMakeLists.txt
+@@ -7,6 +7,8 @@ project(tbb CXX)
  include(CheckCXXCompilerFlag)
  include(CheckCXXSourceRuns)
  
@@ -44,7 +93,7 @@ diff -Naur pytorch-1.6.0.orig/aten/src/ATen/cpu/tbb/CMakeLists.txt pytorch-1.6.0
  if(POLICY CMP0058)
    cmake_policy(SET CMP0058 NEW)
  endif()
-@@ -25,16 +27,16 @@
+@@ -25,16 +27,16 @@ if(NOT TBB_INSTALL_EXPORT_NAME)
    set(TBB_INSTALL_EXPORT_NAME "Caffe2Targets")
  endif()
  if(NOT TBB_INSTALL_EXPORT_DESTINATION)
@@ -65,10 +114,31 @@ diff -Naur pytorch-1.6.0.orig/aten/src/ATen/cpu/tbb/CMakeLists.txt pytorch-1.6.0
  endif()
  if(NOT TBB_INSTALL_INCLUDE_DIR)
    set(TBB_INSTALL_INCLUDE_DIR "${TBB_ROOT_DIR}/include")
-diff -Naur pytorch-1.6.0.orig/c10/cuda/CMakeLists.txt pytorch-1.6.0/c10/cuda/CMakeLists.txt
---- pytorch-1.6.0.orig/c10/cuda/CMakeLists.txt	2020-07-24 18:18:09.000000000 -0400
-+++ pytorch-1.6.0/c10/cuda/CMakeLists.txt	2020-08-04 00:07:16.273076228 -0400
-@@ -61,13 +61,13 @@
+diff --git a/c10/CMakeLists.txt b/c10/CMakeLists.txt
+index 17fd7e6..0c7f3d6 100644
+--- a/c10/CMakeLists.txt
++++ b/c10/CMakeLists.txt
+@@ -104,12 +104,12 @@ endif()
+ # Note: for now, we will put all export path into one single Caffe2Targets group
+ # to deal with the cmake deployment need. Inside the Caffe2Targets set, the
+ # individual libraries like libc10.so and libcaffe2.so are still self-contained.
+-install(TARGETS c10 EXPORT Caffe2Targets DESTINATION lib)
++install(TARGETS c10 EXPORT Caffe2Targets DESTINATION ${CMAKE_INSTALL_LIBDIR})
+ install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+-        DESTINATION include
++        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+         FILES_MATCHING PATTERN "*.h")
+ install(FILES ${CMAKE_BINARY_DIR}/c10/macros/cmake_macros.h
+-        DESTINATION include/c10/macros)
++        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/c10/macros)
+ 
+ if(MSVC AND C10_BUILD_SHARED_LIBS)
+   install(FILES $<TARGET_PDB_FILE:c10> DESTINATION lib OPTIONAL)
+diff --git a/c10/cuda/CMakeLists.txt b/c10/cuda/CMakeLists.txt
+index 26d9675..87475e0 100644
+--- a/c10/cuda/CMakeLists.txt
++++ b/c10/cuda/CMakeLists.txt
+@@ -61,13 +61,13 @@ add_subdirectory(test)
  # Note: for now, we will put all export path into one single Caffe2Targets group
  # to deal with the cmake deployment need. Inside the Caffe2Targets set, the
  # individual libraries like libc10.so and libcaffe2.so are still self-contained.
@@ -85,10 +155,11 @@ diff -Naur pytorch-1.6.0.orig/c10/cuda/CMakeLists.txt pytorch-1.6.0/c10/cuda/CMa
  
  if(MSVC AND C10_CUDA_BUILD_SHARED_LIBS)
    install(FILES $<TARGET_PDB_FILE:c10_cuda> DESTINATION lib OPTIONAL)
-diff -Naur pytorch-1.6.0.orig/c10/hip/CMakeLists.txt pytorch-1.6.0/c10/hip/CMakeLists.txt
---- pytorch-1.6.0.orig/c10/hip/CMakeLists.txt	2020-07-24 18:18:09.000000000 -0400
-+++ pytorch-1.6.0/c10/hip/CMakeLists.txt	2020-08-04 00:08:48.203216430 -0400
-@@ -55,9 +55,9 @@
+diff --git a/c10/hip/CMakeLists.txt b/c10/hip/CMakeLists.txt
+index 6a0e0e4..301f286 100644
+--- a/c10/hip/CMakeLists.txt
++++ b/c10/hip/CMakeLists.txt
+@@ -55,9 +55,9 @@ target_include_directories(
  add_subdirectory(test)
  
  # ---[ Installation
@@ -101,10 +172,11 @@ diff -Naur pytorch-1.6.0.orig/c10/hip/CMakeLists.txt pytorch-1.6.0/c10/hip/CMake
  install(FILES ${CMAKE_BINARY_DIR}/c10/hip/impl/hip_cmake_macros.h
 -  DESTINATION include/c10/hip/impl)
 +  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/c10/hip/impl)
-diff -Naur pytorch-1.6.0.orig/caffe2/CMakeLists.txt pytorch-1.6.0/caffe2/CMakeLists.txt
---- pytorch-1.6.0.orig/caffe2/CMakeLists.txt	2020-07-24 18:18:09.000000000 -0400
-+++ pytorch-1.6.0/caffe2/CMakeLists.txt	2020-08-04 00:13:37.057025651 -0400
-@@ -260,15 +260,15 @@
+diff --git a/caffe2/CMakeLists.txt b/caffe2/CMakeLists.txt
+index 584d56e..304f355 100644
+--- a/caffe2/CMakeLists.txt
++++ b/caffe2/CMakeLists.txt
+@@ -260,15 +260,15 @@ set(TORCH_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../torch")
  set(TORCH_ROOT "${TORCH_SRC_DIR}/..")
  
  if(NOT TORCH_INSTALL_BIN_DIR)
@@ -123,7 +195,7 @@ diff -Naur pytorch-1.6.0.orig/caffe2/CMakeLists.txt pytorch-1.6.0/caffe2/CMakeLi
  endif()
  
  
-@@ -1249,7 +1249,7 @@
+@@ -1249,7 +1249,7 @@ if(BUILD_PYTHON)
    if(${BUILDING_WITH_TORCH_LIBS})
      # site-packages/caffe2/python/caffe2_pybind11_state
      # site-packages/torch/lib
@@ -132,32 +204,21 @@ diff -Naur pytorch-1.6.0.orig/caffe2/CMakeLists.txt pytorch-1.6.0/caffe2/CMakeLi
    endif(${BUILDING_WITH_TORCH_LIBS})
  
    # Must also include `CMAKE_SHARED_LINKER_FLAGS` in linker flags for
-diff -Naur pytorch-1.6.0.orig/caffe2/proto/CMakeLists.txt pytorch-1.6.0/caffe2/proto/CMakeLists.txt
---- pytorch-1.6.0.orig/caffe2/proto/CMakeLists.txt	2020-07-24 18:18:09.000000000 -0400
-+++ pytorch-1.6.0/caffe2/proto/CMakeLists.txt	2020-08-04 00:14:05.315133367 -0400
-@@ -16,4 +16,4 @@
+diff --git a/caffe2/proto/CMakeLists.txt b/caffe2/proto/CMakeLists.txt
+index ac48fd7..eefd297 100644
+--- a/caffe2/proto/CMakeLists.txt
++++ b/caffe2/proto/CMakeLists.txt
+@@ -16,4 +16,4 @@ endif()
  target_compile_definitions(
      Caffe2_PROTO PRIVATE ${Caffe2_API_DEFINE})
  
 -install(FILES ${Caffe2_PROTO_HEADERS} DESTINATION include/caffe2/proto)
 +install(FILES ${Caffe2_PROTO_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/caffe2/proto)
-diff -Naur pytorch-1.6.0.orig/CMakeLists.txt pytorch-1.6.0/CMakeLists.txt
---- pytorch-1.6.0.orig/CMakeLists.txt	2020-07-24 18:18:09.000000000 -0400
-+++ pytorch-1.6.0/CMakeLists.txt	2020-08-04 00:01:19.618611037 -0400
-@@ -112,6 +112,9 @@
-   endif()
- endif()
- 
-+# Make installation paths FHS-compliant as much, as possible
-+include(GNUInstallDirs)
-+
- # ---[ Options.
- # Note to developers: if you add an option below, make sure you also add it to
- # cmake/Summary.cmake so that the summary prints out the option values.
-diff -Naur pytorch-1.6.0.orig/modules/detectron/CMakeLists.txt pytorch-1.6.0/modules/detectron/CMakeLists.txt
---- pytorch-1.6.0.orig/modules/detectron/CMakeLists.txt	2020-07-24 18:18:09.000000000 -0400
-+++ pytorch-1.6.0/modules/detectron/CMakeLists.txt	2020-08-04 00:15:25.790979903 -0400
-@@ -16,7 +16,7 @@
+diff --git a/modules/detectron/CMakeLists.txt b/modules/detectron/CMakeLists.txt
+index 730626d..053692e 100644
+--- a/modules/detectron/CMakeLists.txt
++++ b/modules/detectron/CMakeLists.txt
+@@ -16,7 +16,7 @@ if(BUILD_CAFFE2_OPS)
          ${Detectron_GPU_SRCS})
  
      target_link_libraries(caffe2_detectron_ops_gpu torch ${OpenMP_link})
@@ -166,7 +227,7 @@ diff -Naur pytorch-1.6.0.orig/modules/detectron/CMakeLists.txt pytorch-1.6.0/mod
      if(MSVC)
        install(FILES $<TARGET_PDB_FILE:caffe2_detectron_ops_gpu> DESTINATION lib OPTIONAL)
      endif()
-@@ -29,7 +29,7 @@
+@@ -29,7 +29,7 @@ if(BUILD_CAFFE2_OPS)
          ${Detectron_HIP_SRCS})
      target_compile_options(caffe2_detectron_ops_hip PRIVATE ${HIP_CXX_FLAGS})
      target_link_libraries(caffe2_detectron_ops_hip torch)
@@ -175,7 +236,7 @@ diff -Naur pytorch-1.6.0.orig/modules/detectron/CMakeLists.txt pytorch-1.6.0/mod
    elseif(NOT IOS_PLATFORM)
      add_library(caffe2_detectron_ops SHARED ${Detectron_CPU_SRCS})
      if(HAVE_SOVERSION)
-@@ -37,7 +37,7 @@
+@@ -37,7 +37,7 @@ if(BUILD_CAFFE2_OPS)
          VERSION ${TORCH_VERSION} SOVERSION ${TORCH_SOVERSION})
      endif()
      target_link_libraries(caffe2_detectron_ops torch ${OpenMP_link})
@@ -184,10 +245,11 @@ diff -Naur pytorch-1.6.0.orig/modules/detectron/CMakeLists.txt pytorch-1.6.0/mod
      if(MSVC)
        install(FILES $<TARGET_PDB_FILE:caffe2_detectron_ops> DESTINATION lib OPTIONAL)
      endif()
-diff -Naur pytorch-1.6.0.orig/modules/module_test/CMakeLists.txt pytorch-1.6.0/modules/module_test/CMakeLists.txt
---- pytorch-1.6.0.orig/modules/module_test/CMakeLists.txt	2020-07-24 18:18:09.000000000 -0400
-+++ pytorch-1.6.0/modules/module_test/CMakeLists.txt	2020-08-04 00:16:04.824268692 -0400
-@@ -16,7 +16,7 @@
+diff --git a/modules/module_test/CMakeLists.txt b/modules/module_test/CMakeLists.txt
+index 696bd5d..f476fa0 100644
+--- a/modules/module_test/CMakeLists.txt
++++ b/modules/module_test/CMakeLists.txt
+@@ -16,7 +16,7 @@ if(BUILD_TEST)
          VERSION ${TORCH_VERSION} SOVERSION ${TORCH_SOVERSION})
    endif()
    target_link_libraries(caffe2_module_test_dynamic torch_library)
@@ -196,10 +258,11 @@ diff -Naur pytorch-1.6.0.orig/modules/module_test/CMakeLists.txt pytorch-1.6.0/m
    if(MSVC AND BUILD_SHARED_LIBS)
      install(FILES $<TARGET_PDB_FILE:caffe2_module_test_dynamic> DESTINATION lib OPTIONAL)
    endif()
-diff -Naur pytorch-1.6.0.orig/modules/observers/CMakeLists.txt pytorch-1.6.0/modules/observers/CMakeLists.txt
---- pytorch-1.6.0.orig/modules/observers/CMakeLists.txt	2020-07-24 18:18:09.000000000 -0400
-+++ pytorch-1.6.0/modules/observers/CMakeLists.txt	2020-08-04 00:16:38.958018053 -0400
-@@ -21,7 +21,7 @@
+diff --git a/modules/observers/CMakeLists.txt b/modules/observers/CMakeLists.txt
+index 8796354..0309a27 100644
+--- a/modules/observers/CMakeLists.txt
++++ b/modules/observers/CMakeLists.txt
+@@ -21,7 +21,7 @@ endif()
  target_link_libraries(caffe2_observers PUBLIC torch_library)
  target_include_directories(caffe2_observers PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/..)
  target_compile_options(caffe2_observers PRIVATE "-DCAFFE2_BUILD_OBSERVER_LIB")
@@ -208,10 +271,16 @@ diff -Naur pytorch-1.6.0.orig/modules/observers/CMakeLists.txt pytorch-1.6.0/mod
  caffe2_interface_library(caffe2_observers caffe2_observers_library)
  if(MSVC AND BUILD_SHARED_LIBS)
    install(FILES $<TARGET_PDB_FILE:caffe2_observers> DESTINATION lib OPTIONAL)
-diff -Naur pytorch-1.6.0.orig/modules/rocksdb/CMakeLists.txt pytorch-1.6.0/modules/rocksdb/CMakeLists.txt
---- pytorch-1.6.0.orig/modules/rocksdb/CMakeLists.txt	2020-07-24 18:18:09.000000000 -0400
-+++ pytorch-1.6.0/modules/rocksdb/CMakeLists.txt	2020-08-04 00:17:21.354673646 -0400
-@@ -59,7 +59,7 @@
+@@ -30,4 +30,3 @@ endif()
+ if(CAFFE2_CMAKE_BUILDING_WITH_MAIN_REPO)
+   set(Caffe2_MODULES ${Caffe2_MODULES} caffe2_observers_library PARENT_SCOPE)
+ endif()
+-
+diff --git a/modules/rocksdb/CMakeLists.txt b/modules/rocksdb/CMakeLists.txt
+index 7865198..52bfd14 100644
+--- a/modules/rocksdb/CMakeLists.txt
++++ b/modules/rocksdb/CMakeLists.txt
+@@ -59,7 +59,7 @@ add_library(caffe2_rocksdb ${CMAKE_CURRENT_SOURCE_DIR}/rocksdb.cc)
  target_link_libraries(caffe2_rocksdb PUBLIC torch_library)
  target_link_libraries(caffe2_rocksdb PRIVATE ${RocksDB_LIBRARIES})
  target_include_directories(caffe2_rocksdb PRIVATE ${RocksDB_INCLUDE_DIR})
@@ -220,10 +289,11 @@ diff -Naur pytorch-1.6.0.orig/modules/rocksdb/CMakeLists.txt pytorch-1.6.0/modul
  
  # ---[ Last, Append the library to Caffe2_MODULES, if we are building with
  # the main repo.
-diff -Naur pytorch-1.6.0.orig/test/cpp/api/CMakeLists.txt pytorch-1.6.0/test/cpp/api/CMakeLists.txt
---- pytorch-1.6.0.orig/test/cpp/api/CMakeLists.txt	2020-07-24 18:18:09.000000000 -0400
-+++ pytorch-1.6.0/test/cpp/api/CMakeLists.txt	2020-08-04 00:18:24.192571088 -0400
-@@ -67,7 +67,7 @@
+diff --git a/test/cpp/api/CMakeLists.txt b/test/cpp/api/CMakeLists.txt
+index ef4b7ac..4008fb8 100644
+--- a/test/cpp/api/CMakeLists.txt
++++ b/test/cpp/api/CMakeLists.txt
+@@ -67,7 +67,7 @@ if(NOT MSVC)
  endif()
  
  if(INSTALL_TEST)
@@ -232,10 +302,11 @@ diff -Naur pytorch-1.6.0.orig/test/cpp/api/CMakeLists.txt pytorch-1.6.0/test/cpp
    # Install PDB files for MSVC builds
    if(MSVC AND BUILD_SHARED_LIBS)
      install(FILES $<TARGET_PDB_FILE:test_api> DESTINATION bin OPTIONAL)
-diff -Naur pytorch-1.6.0.orig/test/cpp/dist_autograd/CMakeLists.txt pytorch-1.6.0/test/cpp/dist_autograd/CMakeLists.txt
---- pytorch-1.6.0.orig/test/cpp/dist_autograd/CMakeLists.txt	2020-07-24 18:18:09.000000000 -0400
-+++ pytorch-1.6.0/test/cpp/dist_autograd/CMakeLists.txt	2020-08-04 00:19:33.534178557 -0400
-@@ -20,7 +20,7 @@
+diff --git a/test/cpp/dist_autograd/CMakeLists.txt b/test/cpp/dist_autograd/CMakeLists.txt
+index 5d23602..e4287c6 100644
+--- a/test/cpp/dist_autograd/CMakeLists.txt
++++ b/test/cpp/dist_autograd/CMakeLists.txt
+@@ -20,7 +20,7 @@ if(USE_DISTRIBUTED)
    endif()
  
    if(INSTALL_TEST)
@@ -244,10 +315,11 @@ diff -Naur pytorch-1.6.0.orig/test/cpp/dist_autograd/CMakeLists.txt pytorch-1.6.
      # Install PDB files for MSVC builds
      if(MSVC AND BUILD_SHARED_LIBS)
        install(FILES $<TARGET_PDB_FILE:test_dist_autograd> DESTINATION bin OPTIONAL)
-diff -Naur pytorch-1.6.0.orig/test/cpp/jit/CMakeLists.txt pytorch-1.6.0/test/cpp/jit/CMakeLists.txt
---- pytorch-1.6.0.orig/test/cpp/jit/CMakeLists.txt	2020-07-24 18:18:09.000000000 -0400
-+++ pytorch-1.6.0/test/cpp/jit/CMakeLists.txt	2020-08-04 00:20:32.571652434 -0400
-@@ -80,7 +80,7 @@
+diff --git a/test/cpp/jit/CMakeLists.txt b/test/cpp/jit/CMakeLists.txt
+index c91b7fc..5217dfe 100644
+--- a/test/cpp/jit/CMakeLists.txt
++++ b/test/cpp/jit/CMakeLists.txt
+@@ -80,7 +80,7 @@ elseif(USE_ROCM)
  endif()
  
  if(INSTALL_TEST)
@@ -256,10 +328,11 @@ diff -Naur pytorch-1.6.0.orig/test/cpp/jit/CMakeLists.txt pytorch-1.6.0/test/cpp
    # Install PDB files for MSVC builds
    if(MSVC AND BUILD_SHARED_LIBS)
      install(FILES $<TARGET_PDB_FILE:test_jit> DESTINATION bin OPTIONAL)
-diff -Naur pytorch-1.6.0.orig/torch/CMakeLists.txt pytorch-1.6.0/torch/CMakeLists.txt
---- pytorch-1.6.0.orig/torch/CMakeLists.txt	2020-07-24 18:18:09.000000000 -0400
-+++ pytorch-1.6.0/torch/CMakeLists.txt	2020-08-04 00:21:59.199146626 -0400
-@@ -21,7 +21,7 @@
+diff --git a/torch/CMakeLists.txt b/torch/CMakeLists.txt
+index 1aa4d49..424e7a9 100644
+--- a/torch/CMakeLists.txt
++++ b/torch/CMakeLists.txt
+@@ -21,7 +21,7 @@ set(TORCH_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
  set(TORCH_ROOT "${TORCH_SRC_DIR}/..")
  
  if(NOT TORCH_INSTALL_LIB_DIR)
@@ -268,10 +341,11 @@ diff -Naur pytorch-1.6.0.orig/torch/CMakeLists.txt pytorch-1.6.0/torch/CMakeList
  endif()
  
  if(MSVC)
-diff -Naur pytorch-1.6.0.orig/torch/lib/c10d/CMakeLists.txt pytorch-1.6.0/torch/lib/c10d/CMakeLists.txt
---- pytorch-1.6.0.orig/torch/lib/c10d/CMakeLists.txt	2020-07-24 18:18:09.000000000 -0400
-+++ pytorch-1.6.0/torch/lib/c10d/CMakeLists.txt	2020-08-04 00:23:06.755546512 -0400
-@@ -142,7 +142,7 @@
+diff --git a/torch/lib/c10d/CMakeLists.txt b/torch/lib/c10d/CMakeLists.txt
+index 68fe49f..1913cdb 100644
+--- a/torch/lib/c10d/CMakeLists.txt
++++ b/torch/lib/c10d/CMakeLists.txt
+@@ -142,7 +142,7 @@ endif()
  
  target_link_libraries(c10d PUBLIC ${C10D_LIBS})
  
@@ -280,22 +354,17 @@ diff -Naur pytorch-1.6.0.orig/torch/lib/c10d/CMakeLists.txt pytorch-1.6.0/torch/
  
  option(BUILD_EXAMPLES "Build examples" OFF)
  if(BUILD_EXAMPLES)
-@@ -156,4 +156,4 @@
+@@ -156,4 +156,4 @@ if(BUILD_TEST)
  endif()
  
  # Install all header files that were prepared in the build directory
 -install(DIRECTORY ${CMAKE_BINARY_DIR}/include/ DESTINATION include)
 +install(DIRECTORY ${CMAKE_BINARY_DIR}/include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-diff -Naur pytorch-1.6.0.orig/torch/lib/libshm/CMakeLists.txt pytorch-1.6.0/torch/lib/libshm/CMakeLists.txt
---- pytorch-1.6.0.orig/torch/lib/libshm/CMakeLists.txt	2020-07-24 18:18:09.000000000 -0400
-+++ pytorch-1.6.0/torch/lib/libshm/CMakeLists.txt	2020-08-04 00:24:57.466665693 -0400
-@@ -2,11 +2,13 @@
- cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
- cmake_policy(VERSION 2.6)
- 
-+include(GNUInstallDirs)
-+
- set(TORCH_ROOT ${CMAKE_CURRENT_LIST_DIR}/../../../)
+diff --git a/torch/lib/libshm/CMakeLists.txt b/torch/lib/libshm/CMakeLists.txt
+index 17916d6..a52c867 100644
+--- a/torch/lib/libshm/CMakeLists.txt
++++ b/torch/lib/libshm/CMakeLists.txt
+@@ -6,7 +6,7 @@ set(TORCH_ROOT ${CMAKE_CURRENT_LIST_DIR}/../../../)
  include(${TORCH_ROOT}/cmake/public/threads.cmake)
  
  if(NOT LIBSHM_INSTALL_LIB_SUBDIR)
@@ -304,7 +373,7 @@ diff -Naur pytorch-1.6.0.orig/torch/lib/libshm/CMakeLists.txt pytorch-1.6.0/torc
  endif()
  
  # Flags
-@@ -36,7 +38,7 @@
+@@ -36,7 +36,7 @@ target_include_directories(shm PUBLIC
  
  add_executable(torch_shm_manager manager.cpp)
  target_link_libraries(torch_shm_manager shm)
@@ -313,7 +382,7 @@ diff -Naur pytorch-1.6.0.orig/torch/lib/libshm/CMakeLists.txt pytorch-1.6.0/torc
  ### Torch packages supposes libraries prefix is "lib"
  set_target_properties(shm PROPERTIES
    PREFIX "lib"
-@@ -81,5 +83,5 @@
+@@ -81,5 +81,5 @@ endif()
  
  
  install(TARGETS shm LIBRARY DESTINATION ${LIBSHM_INSTALL_LIB_SUBDIR})
@@ -321,3 +390,6 @@ diff -Naur pytorch-1.6.0.orig/torch/lib/libshm/CMakeLists.txt pytorch-1.6.0/torc
 -install(TARGETS torch_shm_manager DESTINATION "bin")
 +install(FILES libshm.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 +install(TARGETS torch_shm_manager DESTINATION ${CMAKE_INSTALL_BINDIR})
+-- 
+2.26.2
+

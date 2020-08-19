@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6,7,8} )
+PYTHON_COMPAT=( python3_{6..8} )
 
 DISTUTILS_OPTIONAL=1
 
@@ -220,6 +220,7 @@ src_install() {
 	local multilib_failing_files=(
 		libgloo.a
 		libsleef.a
+		libtensorpipe.so
 	)
 
 	for file in ${multilib_failing_files[@]}; do
