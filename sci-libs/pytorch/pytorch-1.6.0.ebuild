@@ -102,7 +102,6 @@ PATCHES=(
 	"${FILESDIR}"/Use-platform-dependent-LIBDIR-in-TorchConfig.cmake.in-1.6.0.patch
 	"${FILESDIR}"/Fix-path-to-torch_global_deps-library-in-installatio.patch
 	"${FILESDIR}"/${PN}-1.5.0-no-tbb.patch
-	"${FILESDIR}"/Use-system-libuv.patch
 )
 
 src_prepare() {
