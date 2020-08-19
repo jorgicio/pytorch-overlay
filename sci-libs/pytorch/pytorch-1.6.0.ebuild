@@ -237,6 +237,19 @@ src_install() {
 	rm -fv "${ED}/usr/lib64/libtbb.so"
 	rm -rfv "${ED}/usr/lib64/cmake"
 
+	rm -fv "${ED}/usr/lib64/libtbb.so" || die
+	rm -rfv "${ED}/usr/lib64/cmake" || die
+
+	rm -rfv "${ED}/usr/share/doc/mkldnn" || die
+	rm -rfv "${ED}/usr/share/doc/dnnl" || die
+
+	rm -rfv "${ED}/usr/include/uv" || die
+	rm -fv "${ED}/usr/include/uv.h" || die
+	rm -fv "${ED}/usr/lib64/libuv.so" || die
+	rm -fv "${ED}/usr/lib64/libuv.so.1" || die
+	rm -fv "${ED}/usr/lib64/libuv.so.1.0.0" || die
+	rm -rfv "${ED}/usr/lib64/pkgconfig" || die
+
 	if use python; then
 		install_shm_manager() {
 			python_get_sitedir
