@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6,7,8} )
+PYTHON_COMPAT=( python3_{6..8} )
 
 DISTUTILS_OPTIONAL=1
 
@@ -228,6 +228,8 @@ src_install() {
 
 	rm -fv "${ED}/usr/lib64/libtbb.so"
 	rm -rfv "${ED}/usr/lib64/cmake"
+
+	rm -rfv "${ED}/usr/share/doc/mkldnn" || die
 
 	if use python; then
 		install_shm_manager() {
