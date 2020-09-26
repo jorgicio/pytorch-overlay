@@ -28,7 +28,7 @@ COMMON_DEPEND="
 		dev-python/pillow[${PYTHON_USEDEP}]
 		dev-python/six[${PYTHON_USEDEP}]
 		dev-python/tqdm[${PYTHON_USEDEP}]
-		sci-libs/scipy[${PYTHON_USEDEP}]
+		dev-python/scipy[${PYTHON_USEDEP}]
 	)
 	sci-libs/pytorch[cuda?,python?,${PYTHON_USEDEP}]
 	ffmpeg? ( media-video/ffmpeg )
