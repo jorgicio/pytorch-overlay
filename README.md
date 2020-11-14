@@ -3,6 +3,7 @@
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
 - [PyTorch Gentoo Overlay](#pytorch-gentoo-overlay)
+  - [Branch renaming (Information for collaborators, MUST READ)](#branch-renaming-information-for-collaborators-must-read)
   - [Installation](#installation)
     - [Using eselect/repository (Recommended)](#using-eselectrepository-recommended)
     - [Using Layman](#using-layman)
@@ -15,6 +16,18 @@
 
 This Overlay is in testing phase in order to provide the [PyTorch](https://pytorch.org) framework and Torchvision.
 The ebuilds presented here are based in the work done by [Alexei Chernov](https://github.com/aclex) in [his repo](https://github.com/aclex/pytorch-ebuild).
+
+## Branch renaming (Information for collaborators, MUST READ)
+
+The default branch is now `main` instead of `master`, so all the PRs and changes you send, do it to that branch. So you should the next steps if not done before:
+
+    git checkout master
+    git branch -m master main
+    git fetch
+    git branch --unset-upstream
+    git branch -u origin/master
+
+And that's it.
 
 ## Installation
 
